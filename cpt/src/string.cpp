@@ -10,7 +10,9 @@ namespace cpt {
         std::string token;
 
         while(std::getline(str_stream, token, delim)){
-            tokens.emplace_back(std::move(token));
+            if(!token.empty()){
+                tokens.emplace_back(std::move(token));
+            }
         }
 
         return tokens;

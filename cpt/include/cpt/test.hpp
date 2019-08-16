@@ -7,12 +7,14 @@ namespace cpt {
 
     class Test {
     public:
-        Test(const std::string& program, const std::string& input, const std::string& output);
+        Test()=default;
+        Test(const Path& program, const Path& input, const Path& output);
         bool passed() const;
         void run();
-        std::string& result();
+        const Path& program() const;
+        const Path& input() const;
+        const Path& output() const;
         const std::string& result() const;
-        std::string& answer();
         const std::string& answer() const;
     private:
         Path        program_;

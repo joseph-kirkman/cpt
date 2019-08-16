@@ -13,7 +13,8 @@ CPT_OBJ := $(CPT_SRC:%.cpp=$(OBJ_DIR)/%.o)
 CPT_LIB := $(BIN_DIR)/lib$(CPT).a
 
 CPTC := cptc
-CPTC_SRC := cpt.cpp
+CPTC_INCLUDE := $(CPT_INCLUDE) -I$(CPTC)/include -I$(CPTC)/deps/CLI11/include
+CPTC_SRC := $(wildcard $(CPTC)/src/*.cpp)
 CPTC_APP := $(BIN_DIR)/$(CPTC)
 
 all: build $(CPTC)
@@ -31,7 +32,7 @@ $(CPT): $(CPT_LIB)
 $(CPTC): $(CPTC_APP)
 
 $(CPTC_APP): $(CPT_LIB) $(CPTC_SRC)
-	$(CXX) $(CXXFLAGS) $(CPT_INCLUDE) $(CPTC_SRC) -L$(BIN_DIR) -l$(CPT) -o $@
+	$(CXX) $(CXXFLAGS) $(CPTC_INCLUDE) $(CPTC_SRC) -L$(BIN_DIR) -l$(CPT) -o $@
 
 .PHONY: all build clean $(CPT) $(CPTC)
 

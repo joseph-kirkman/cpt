@@ -4,19 +4,19 @@
 
 namespace cpt {
 
-    Test::Test(const std::string& program, const std::string& input, const std::string& output):
+    Test::Test(const Path& program, const Path& input, const Path& output):
         program_(program), input_(input), output_(output){
 
-        if(!program_.exists()){
-            throw std::runtime_error(program + " file doesn't exist");
+        if(!program_.is_file()){
+            throw std::runtime_error(program.str() + " file doesn't exist");
         }
 
-        if(!input_.exists()){
-            throw std::runtime_error(input + " file doesn't exist");
+        if(!input_.is_file()){
+            throw std::runtime_error(input.str() + " file doesn't exist");
         }
 
-        if(!output_.exists()){
-            throw std::runtime_error(output + " file doesn't exist");
+        if(!output_.is_file()){
+            throw std::runtime_error(output.str() + " file doesn't exist");
         }
 
     }
@@ -46,16 +46,20 @@ namespace cpt {
         String::trim(answer_);
     }
 
-    std::string& Test::result(){
-        return result_;
+    const Path& Test::program() const {
+        return program_;
+    }
+
+    const Path& Test::input() const {
+        return input_;
+    }
+
+    const Path& Test::output() const {
+        return output_;
     }
 
     const std::string& Test::result() const {
         return result_;
-    }
-
-    std::string& Test::answer() {
-        return answer_;
     }
 
     const std::string& Test::answer() const {

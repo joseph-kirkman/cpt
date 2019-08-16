@@ -1,5 +1,8 @@
 # Competitive Programming Tester
 Tool for testing your algorithms
+
+![Alt Text](preview.gif)
+
 ## Getting Started
 
 Now **cpt** is presented as a command-line tool as **cptc**, but the web-based version is also an option in the future.
@@ -23,3 +26,25 @@ make cptc
 ```
 
 All the binaries and object files are now in the **build** directory.
+
+## Command-line interface
+
+Usage: **cptc** [OPTIONS] program
+
+### Options
+
+| Name        | Description                                                                    |
+| ----------- | ------------------------------------------------------------------------------ |
+| -h,--help   | Print this help message and exit                                               |
+| -i,--input  | Input file (i.txt by default)                                                  |
+| -o,--output | Output file (o.txt by default)                                                 |
+| -d,--dir    | Directory with tests (current directory by default)                            |
+| -n,--num    | Number of tests (if n > 1 then i[2..n].txt and o[2..n].txt files will be used) |
+| -s,--silent | Do not print messages while testing                                            |
+
+### Dependencies
+
+- Header-only [CLI11](https://github.com/CLIUtils/CLI11) for arguments parsing
+
+
+​              

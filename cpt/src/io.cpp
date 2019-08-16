@@ -3,6 +3,7 @@
 
 #ifdef _WIN32
 #else
+#include <unistd.h>
 #include <sys/stat.h>
 #endif
 
@@ -68,11 +69,46 @@ namespace cpt {
         return abs_;
     }
 
-    Path Path::filename() const {
+    Path Path::filename(bool with_extension) const {
         if(empty()){
             return Path();
         }
-        return Path(path_.back());
+        std::string filename = path_.back();
+        size_t index = filename.find_last_of(".");
+
+        if(index == std::string::npos || with_extension){
+            return Path(filename);
+        }
+
+        return Path(filename.substr(0, index));
+    }
+
+    Path Path::dirname() const {
+        Path dir;
+        dir.abs_ = abs_;
+
+        if(path_.empty()){
+            dir.path_.push_back("..");
+        } else {
+            for(size_t i = 0; i < path_.size() - 1; ++i){
+                dir.path_.push_back(path_[i]);
+            }
+        }
+
+        return dir;
+    }
+
+    Path Path::add_suffix(const std::string& str) const {
+        std::string path_str = this->str();
+        size_t ext_index = path_str.find_last_of(".");
+
+        if(ext_index == std::string::npos){
+            path_str += str;
+        } else {
+            path_str = path_str.substr(0, ext_index) + str + path_str.substr(ext_index);
+        }
+
+        return Path(path_str);
     }
 
     std::string Path::str() const {
@@ -92,7 +128,7 @@ namespace cpt {
                 os << delim;
             }
         }
-
+        
         return os.str();
     }
 
@@ -118,6 +154,16 @@ namespace cpt {
     std::ostream& operator<<(std::ostream& os, const Path& path){
         os << path.str();
         return os;
+    }
+
+    Path Path::current_path(){
+#ifdef _WIN32
+#else
+        char path[PATH_MAX];
+        if (!getcwd(path, PATH_MAX))
+            throw std::runtime_error("cannot get current path because of " + std::string(strerror(errno)));
+        return Path(path);
+#endif
     }
 
 }
