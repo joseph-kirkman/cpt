@@ -41,6 +41,7 @@ Usage: **cptc** [OPTIONS] program
 | -d,--dir    | Directory with tests (current directory by default)                            |
 | -n,--num    | Number of tests (if n > 1 then i[2..n].txt and o[2..n].txt files will be used) |
 | -s,--silent | Do not print messages while testing                                            |
+| -t,--tests  | Tests ranges divided by comma (a:b, n, ...)                                    |
 
 ### Dependencies
 

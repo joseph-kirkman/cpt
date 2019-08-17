@@ -1,4 +1,8 @@
+#include <algorithm>
+
 #include "cpt/io.hpp"
+#include "cpt/string.hpp"
+
 #include "cptc/cmd.hpp"
 
 namespace cpt { 
@@ -38,4 +42,39 @@ namespace cpt {
         return "";
     }
 
+    TestsValidator::TestsValidator(Range& range): range_(range){}
+
+    std::string TestsValidator::operator()(const std::string& tests_str){
+        auto ranges_str = String::split(tests_str, ',');
+
+        for(auto& range_str: ranges_str){
+            String::trim(range_str);
+            auto range_atom = String::split(range_str, ':');
+
+            if(range_atom.size() == 1){
+                int range = std::stoi(range_atom[0]);
+                range_.add(range);
+            } else if(range_atom.size() == 2){
+                const int len = 2;
+                int range[len] = {0};
+
+                std::transform(range_atom.begin(), range_atom.end(), range,
+                              [](const std::string& atom){ return std::stoi(atom); });
+                
+                if(!std::all_of(range, range + len, [](int n){ return n > 0; })){
+                    return "Range must be greater than zero";
+                }
+
+                if(!std::is_sorted(range, range + len)){
+                    return "Range error a > b";
+                }
+
+                range_.add(range[0], range[1]);
+            } else {
+                return "Invalid range " + range_str;
+            }
+        }
+
+        return "";
+    }
 }

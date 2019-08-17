@@ -11,11 +11,15 @@ int main(int argc, char** argv){
 
     try {
         cpt::Path program;
+
         cpt::Path input("i.txt");
         cpt::Path output("o.txt");
         cpt::Path dir = cpt::Path::current_path();
         int num_tests = 1;
         bool silent = false;
+
+        std::string tests_str;
+        cpt::Range tests_range;
 
         app.add_option("program", program, "Program for testing")
                       ->required(true)->check(cpt::ProgramValidator());
@@ -28,21 +32,28 @@ int main(int argc, char** argv){
                       ->check(cpt::DirValidator());
         
         app.add_option("-n,--num", num_tests,
-                      "Number of tests (if n > 1 then i[2..n].txt and o[2..n].txt files will be used)")
+                      "Number of tests (i[1..n].txt and o[1..n].txt files will be used)")
                       ->check(cpt::NumTestsValidator());
 
         app.add_flag("-s, --silent", silent, "Do not print messages while testing");
+
+        app.add_option("-t,--tests", tests_str, "Tests ranges divided by comma (a:b, n, ...)")
+                      ->check(cpt::TestsValidator(tests_range));
 
         app.parse(argc, argv);
 
         input = dir / input;
         output = dir / output;
 
+        if(tests_range.empty()){
+            tests_range.add(1, num_tests);
+        }
+
         if(!silent){
             cpt::Console::print("Program = ");
             cpt::Console::println(program.str(), cpt::Console::Color::blue);
             cpt::Console::print("Number of tests = ");
-            cpt::Console::println(num_tests, cpt::Console::Color::blue);
+            cpt::Console::println(tests_range.size(), cpt::Console::Color::blue);
             cpt::Console::print("Tests directory = ");
             cpt::Console::println(dir, cpt::Console::Color::blue);
             cpt::Console::println();
@@ -50,21 +61,21 @@ int main(int argc, char** argv){
 
         std::vector<cpt::Test> tests;
 
-        auto input_f = input;
-        auto output_f = output;
-
-        for(int i = 1; i <= num_tests; ++i){
-            tests.emplace_back(program, input_f, output_f);
-            std::string num_str = std::to_string(i + 1);
-            input_f = input.add_suffix(num_str);
-            output_f = output.add_suffix(num_str);
+        for(int i: tests_range){
+            std::string num_str = std::to_string(i);
+            tests.emplace_back(program, 
+                               input.add_suffix(num_str),
+                               output.add_suffix(num_str)
+            );
         }
 
-        for(size_t i = 0; i < tests.size(); ++i){
-            auto test = tests[i];
+        size_t test_index = 0;
+
+        for(int i: tests_range){
+            auto test = tests[test_index++];
             test.run();
             
-            cpt::Console::print_all(i + 1, ": ");
+            cpt::Console::print_all(i, ": ");
 
             if(test.passed()){
                 cpt::Console::println("OK", cpt::Console::Color::green);
