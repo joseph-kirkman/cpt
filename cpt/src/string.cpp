@@ -6,13 +6,17 @@ namespace cpt {
 
     std::vector<std::string> String::split(const std::string& str, char delim){
         std::vector<std::string> tokens;
-        std::istringstream str_stream(str);
-        std::string token;
 
-        while(std::getline(str_stream, token, delim)){
-            if(!token.empty()){
-                tokens.emplace_back(std::move(token));
-            }
+        size_t last = 0;
+        size_t pos = str.find_first_of(delim, last);
+
+        while (last != std::string::npos) {
+            if (pos != last)
+                tokens.emplace_back(str.substr(last, pos - last));
+            last = pos;
+            if (last == std::string::npos || last + 1 == str.length())
+                break;
+            pos = str.find_first_of(delim, ++last);
         }
 
         return tokens;
