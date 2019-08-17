@@ -2,6 +2,17 @@
 #include "cpt/system.hpp"
 #include "cpt/test.hpp"
 
+//TestOptions
+namespace cpt {
+
+    TestOptions::TestOptions():
+        timer(false){}
+
+    TestOptions::TestOptions(bool timer):
+        timer(timer){}
+}
+
+//Test
 namespace cpt {
 
     Test::Test(const Path& program, const Path& input, const Path& output):

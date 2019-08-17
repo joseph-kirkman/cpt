@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #include <CLI11.hpp>
 #include <cpt/cpt.hpp>
@@ -21,6 +22,8 @@ int main(int argc, char** argv){
         std::string tests_str;
         cpt::Range tests_range;
 
+        bool with_timer = false;
+
         app.add_option("program", program, "Program for testing")
                       ->required(true)->check(cpt::ProgramValidator());
         
@@ -39,6 +42,8 @@ int main(int argc, char** argv){
 
         app.add_option("-t,--tests", tests_str, "Tests ranges divided by comma (a:b, n, ...)")
                       ->check(cpt::TestsValidator(tests_range));
+        
+        app.add_flag("-e,--time", with_timer, "Elapse test's time execution");
 
         app.parse(argc, argv);
 
@@ -59,25 +64,31 @@ int main(int argc, char** argv){
             cpt::Console::println();
         }
 
-        std::vector<cpt::Test> tests;
+        std::vector<std::shared_ptr<cpt::Test>> tests;
 
         for(int i: tests_range){
             std::string num_str = std::to_string(i);
-            tests.emplace_back(program, 
-                               input.add_suffix(num_str),
-                               output.add_suffix(num_str)
+
+            tests.emplace_back(
+                cpt::Test::create(
+                    cpt::TestOptions(with_timer),
+                    program, 
+                    input.add_suffix(num_str),
+                    output.add_suffix(num_str)
+                )
             );
+
         }
 
         size_t test_index = 0;
 
         for(int i: tests_range){
             auto test = tests[test_index++];
-            test.run();
+            test->run();
             
             cpt::Console::print_all(i, ": ");
 
-            if(test.passed()){
+            if(test->passed()){
                 cpt::Console::println("OK", cpt::Console::Color::green);
                 cpt::Console::println();
             } else {
@@ -85,13 +96,23 @@ int main(int argc, char** argv){
                 cpt::Console::println();
 
                 if(!silent){
-                    cpt::Console::println("Got:", cpt::Console::Color::red);
-                    cpt::Console::println(test.answer());
+                    cpt::Console::println("Got:");
+                    cpt::Console::println(test->answer(), cpt::Console::Color::blue);
                     cpt::Console::println();
-                    cpt::Console::println("Expected:", cpt::Console::Color::green);
-                    cpt::Console::println(test.result());
+                    cpt::Console::println("Expected:");
+                    cpt::Console::println(test->result(), cpt::Console::Color::blue);
                     cpt::Console::println();
                 }
+            }
+
+            if(!silent && with_timer){
+                cpt::Console::print("Time = ");
+                cpt::Console::print(
+                    static_cast<cpt::Timeable<cpt::Test>*>(test.get())->time(),
+                    cpt::Console::Color::blue
+                );
+                cpt::Console::println("ms", cpt::Console::Color::blue);
+                cpt::Console::println();
             }
         }
 
