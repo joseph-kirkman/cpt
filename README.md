@@ -39,7 +39,7 @@ Usage: **cptc** [OPTIONS] program
 | -i,--input  | Input file (i.txt by default)                                                  |
 | -o,--output | Output file (o.txt by default)                                                 |
 | -d,--dir    | Directory with tests (current directory by default)                            |
-| -n,--num    | Number of tests (if n > 1 then i[2..n].txt and o[2..n].txt files will be used) |
+| -n,--num    | Number of tests (i[1..n].txt and o[1..n].txt files will be used)               |
 | -s,--silent | Do not print messages while testing                                            |
 | -t,--tests  | Tests ranges divided by comma (a:b, n, ...)                                    |
 | -e,--time   | Elapse test's time execution                                                   |
