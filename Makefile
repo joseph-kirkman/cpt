@@ -34,11 +34,17 @@ $(CPTC): $(CPTC_APP)
 $(CPTC_APP): $(CPT_LIB) $(CPTC_SRC)
 	$(CXX) $(CXXFLAGS) $(CPTC_INCLUDE) $(CPTC_SRC) -L$(BIN_DIR) -l$(CPT) -o $@
 
-.PHONY: all build clean $(CPT) $(CPTC)
+.PHONY: all build clean debug release $(CPT) $(CPTC)
 
 build:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(OBJ_DIR)
+
+debug: CXXFLAGS += -DDEBUG -g
+debug: all
+
+release: CXXFLAGS += -O2
+release: all
 
 clean:
 	@rm -rvf $(OBJ_DIR)/*
