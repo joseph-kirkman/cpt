@@ -82,7 +82,7 @@ namespace cpt {
     }
 
     bool Range::Iterator::operator==(const Range::Iterator& rhs){
-        return it_ == rhs.it_ && end_ == rhs.end_;
+        return (it_ == rhs.it_ && val_ == rhs.val_) || (it_ == end_ && rhs.it_ == end_);
     }
 
     bool Range::Iterator::operator!=(const Range::Iterator& rhs){
