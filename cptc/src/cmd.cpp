@@ -77,4 +77,15 @@ namespace cpt {
 
         return "";
     }
+
+    
+    std::string MinTestsPerThreadValidator::operator()(const std::string& tests_per_thread_str){
+        int tests_per_thread = std::stoi(tests_per_thread_str);
+
+        if(tests_per_thread < 1){
+            return "Number of tests per thread must be greater than zero";
+        }
+
+        return "";
+    }
 }

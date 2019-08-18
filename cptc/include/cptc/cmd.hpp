@@ -23,6 +23,10 @@ namespace cpt {
     private:
         Range& range_;
     };
+
+    struct MinTestsPerThreadValidator {
+        std::string operator()(const std::string& tests_per_thread_str);
+    };    
 }
 
 #endif //CPTC_CMD_HPP

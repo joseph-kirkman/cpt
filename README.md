@@ -43,7 +43,8 @@ Usage: **cptc** [OPTIONS] program
 | -s,--silent | Do not print messages while testing                                            |
 | -t,--tests  | Tests ranges divided by comma (a:b, n, ...)                                    |
 | -e,--time   | Elapse test's time execution                                                   |
-
+| -m,--min-per-thread | Minimum number of tests per thread (3 by default)                      |
+| --single-thread | All tests are executed on a single thread                                  |
 ### Dependencies
 
 - Header-only [CLI11](https://github.com/CLIUtils/CLI11) for arguments parsing

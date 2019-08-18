@@ -1,46 +1,87 @@
 #ifndef CPT_TEST_HPP
 #define CPT_TEST_HPP
 
+#include <memory>
+#include <thread>
+#include <queue>
+
 #include "cpt/io.hpp"
 #include "cpt/mixins.hpp"
+#include "cpt/range.hpp"
 
 namespace cpt {
 
-    class TestOptions {
-    public:
-        TestOptions();
-        TestOptions(bool timer);
-    public:
-        bool timer;
-    };
-
     class Test {
     public:
+
+        class Info {
+        public:
+            Info()=default;
+            Info(const Path& program, const Path& input, const Path& output);
+        public:
+            Path program;
+            Path input;
+            Path output;        
+        };
+
+        class Options {
+        public:
+            Options();
+            Options(bool timer);
+
+            template <typename ...Args>
+            Test* create(Args&&... args){
+                if(timer){
+                    return new Timeable<Test>(std::forward<Args>(args)...);
+                }
+                return new Test(std::forward<Args>(args)...);
+            }
+            
+        public:
+            bool timer;
+        };
+
+    public:
         Test()=default;
+        Test(const Info& info);
         Test(const Path& program, const Path& input, const Path& output);
         virtual ~Test()=default;
         bool passed() const;
         virtual void run();
-        const Path& program() const;
-        const Path& input() const;
-        const Path& output() const;
+        const Info& info() const;
         const std::string& result() const;
         const std::string& answer() const;
-    public:
-        template <typename ...Args>
-        static Test* create(const TestOptions& options, Args&&... args){
-            if(options.timer){
-                return new Timeable<Test>(std::forward<Args>(args)...);
-            } else {
-                return new Test(std::forward<Args>(args)...);
-            }
-        }
     private:
-        Path        program_;
-        Path        input_;
-        Path        output_;
+        void check_info();
+    private:
+        Info        info_;
         std::string result_;
         std::string answer_;
+    };
+
+    class MultiTest {
+    public:
+        class Result {
+        public:
+            Result();
+            Result(int index, const std::shared_ptr<Test>& test);
+        public:
+            int index;
+            std::shared_ptr<Test> test;
+        };
+    public:
+        MultiTest()=default;
+        MultiTest(const Test::Info& info, const Test::Options& ops);
+        MultiTest(const MultiTest&)=delete;
+        MultiTest& operator=(const MultiTest&)=delete;
+        void process_range(Range::Iterator begin, Range::Iterator end);
+        Result get();
+    private:
+        std::queue<Result>      tests_;
+        std::mutex              mutex_;
+        std::condition_variable cond_;
+        Test::Info              info_;
+        Test::Options           ops_;
     };
 }
 
