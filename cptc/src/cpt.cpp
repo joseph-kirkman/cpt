@@ -36,7 +36,7 @@ int main(int argc, char** argv){
                       "Number of tests (i[1..n].txt and o[1..n].txt files will be used)")
                       ->check(cpt::NumTestsValidator());
 
-        app.add_flag("-s, --silent", silent, "Do not print messages while testing");
+        app.add_flag("-s, --silent", silent, "Do not print additional test info");
 
         app.add_option("-t,--tests", tests_str, "Tests ranges divided by comma (a:b, n, ...)")
                       ->check(cpt::TestsValidator(tests_range));
@@ -60,17 +60,16 @@ int main(int argc, char** argv){
             num_tests = tests_range.size();
         }
 
-        if(!silent){
-            cpt::Console::print("Program = ");
-            cpt::Console::println(test_info.program.str(), cpt::Console::Color::blue);
-            cpt::Console::print("Number of tests = ");
-            cpt::Console::println(num_tests, cpt::Console::Color::blue);
-            cpt::Console::print("Tests directory = ");
-            cpt::Console::println(dir, cpt::Console::Color::blue);
-            cpt::Console::println();
-        }
+        cpt::Console::print("Program = ");
+        cpt::Console::println(test_info.program.str(), cpt::Console::Color::blue);
+        cpt::Console::print("Number of tests = ");
+        cpt::Console::println(num_tests, cpt::Console::Color::blue);
+        cpt::Console::print("Tests directory = ");
+        cpt::Console::println(dir, cpt::Console::Color::blue);
+        cpt::Console::println();
 
         int num_threads = 1;
+        min_tests_per_thread = std::min(num_tests, min_tests_per_thread);
 
         if(!single_thread){
             int max_threads = (num_tests - 1) / min_tests_per_thread + 1;
@@ -78,31 +77,12 @@ int main(int argc, char** argv){
             num_threads = std::min(hardware_threads > 0 ? hardware_threads : 2, max_threads);  
         }
 
-        int block_size = num_tests / num_threads;
-        auto block_start = tests_range.begin();
-
         cpt::MultiTest mt(test_info, test_ops);
-
-        for(size_t i = 0; i < num_threads - 1; ++i){
-            auto block_end = block_start;
-            std::advance(block_end, block_size);
-            
-            std::thread thread(
-                &cpt::MultiTest::process_range,
-                &mt, 
-                block_start,
-                block_end
-            );
-            thread.detach();
-            block_start = block_end;
-        }
-
-        mt.process_range(
-            block_start,
-            tests_range.end()
-        );
+        mt.run(tests_range, num_threads);
 
         int tests_done = 0;
+        int succeed = 0;
+        std::set<int> failed;
 
         while(tests_done < num_tests){
             auto result = mt.get();
@@ -112,9 +92,11 @@ int main(int argc, char** argv){
             cpt::Console::print_all(result.index, ": ");
 
             if(test->passed()){
+                ++succeed;
                 cpt::Console::println("OK", cpt::Console::Color::green);
                 cpt::Console::println();
             } else {
+                failed.insert(result.index);
                 cpt::Console::println("FAILED", cpt::Console::Color::red);
                 cpt::Console::println();
 
@@ -137,6 +119,19 @@ int main(int argc, char** argv){
                 cpt::Console::println("ms", cpt::Console::Color::blue);
                 cpt::Console::println();
             }
+        }
+
+        cpt::Console::print("Succeeded = ");
+        cpt::Console::println(std::to_string(succeed) + "/" + std::to_string(tests_done), cpt::Console::Color::blue);
+        
+        if(!failed.empty()){
+            cpt::Console::print("Failed = ");
+
+            for(auto& idx: failed){
+                cpt::Console::print(std::to_string(idx) + " ", cpt::Console::Color::blue);
+            }
+
+            cpt::Console::println();
         }
 
     } catch(const CLI::Error& e){

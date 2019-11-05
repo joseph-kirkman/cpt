@@ -74,8 +74,10 @@ namespace cpt {
         MultiTest(const Test::Info& info, const Test::Options& ops);
         MultiTest(const MultiTest&)=delete;
         MultiTest& operator=(const MultiTest&)=delete;
-        void process_range(Range::Iterator begin, Range::Iterator end);
+        void run(const Range& tests_range, int num_threads);
         Result get();
+    private:
+        void process_range(typename Range::const_iterator begin, typename Range::const_iterator end);
     private:
         std::queue<Result>      tests_;
         std::mutex              mutex_;

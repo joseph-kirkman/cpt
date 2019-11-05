@@ -94,7 +94,32 @@ namespace cpt {
     MultiTest::MultiTest(const Test::Info& info, const Test::Options& ops):
         info_(info), ops_(ops){}
 
-    void MultiTest::process_range(Range::Iterator begin, Range::Iterator end){
+    void MultiTest::run(const Range& tests_range, int num_threads){
+        int block_size = tests_range.size() / num_threads;
+        auto block_start = tests_range.cbegin();
+        auto run_thread = [&](typename Range::const_iterator begin,
+                              typename Range::const_iterator end){
+            std::thread thread(
+                &MultiTest::process_range,
+                this, 
+                begin,
+                end
+            );
+            thread.detach();
+        };
+
+        for(size_t i = 0; i < num_threads - 1; ++i){
+            auto block_end = block_start;
+            std::advance(block_end, block_size);
+            run_thread(block_start, block_end);
+            block_start = block_end;
+        }
+
+        run_thread(block_start, tests_range.cend());
+    }
+
+    void MultiTest::process_range(typename Range::const_iterator begin,
+                                  typename Range::const_iterator end){
         for(auto it = begin; it != end; ++it){
             std::string num_str = std::to_string(*it);
             std::shared_ptr<Test> test(
@@ -113,7 +138,7 @@ namespace cpt {
 
     typename MultiTest::Result MultiTest::get(){
         std::unique_lock<std::mutex> locker(mutex_);
-        
+
         cond_.wait(locker, [&](){
             return !tests_.empty();
         });

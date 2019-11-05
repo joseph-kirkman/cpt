@@ -40,7 +40,7 @@ Usage: **cptc** [OPTIONS] program
 | -o,--output | Output file (o.txt by default)                                                 |
 | -d,--dir    | Directory with tests (current directory by default)                            |
 | -n,--num    | Number of tests (i[1..n].txt and o[1..n].txt files will be used)               |
-| -s,--silent | Do not print messages while testing                                            |
+| -s,--silent | Do not print additional test info                                              |
 | -t,--tests  | Tests ranges divided by comma (a:b, n, ...)                                    |
 | -e,--time   | Elapse test's time execution                                                   |
 | -m,--min-per-thread | Minimum number of tests per thread (3 by default)                      |
