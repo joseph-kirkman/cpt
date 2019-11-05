@@ -39,6 +39,7 @@ namespace cpt {
     class File {
     public:
         static std::string read(const Path& path);
+        static void write(const Path& path, const std::string& data);
     };
 }
 

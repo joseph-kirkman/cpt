@@ -102,10 +102,10 @@ int main(int argc, char** argv){
 
                 if(!silent){
                     cpt::Console::println("Got:");
-                    cpt::Console::println(test->answer(), cpt::Console::Color::blue);
+                    cpt::Console::println(test->result(), cpt::Console::Color::blue);
                     cpt::Console::println();
                     cpt::Console::println("Expected:");
-                    cpt::Console::println(test->result(), cpt::Console::Color::blue);
+                    cpt::Console::println(test->answer(), cpt::Console::Color::blue);
                     cpt::Console::println();
                 }
             }

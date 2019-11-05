@@ -29,7 +29,10 @@ All the binaries and object files are now in the **build** directory.
 
 ## Command-line interface
 
-Usage: **cptc** [OPTIONS] program
+### Usage
+```
+cptc [OPTIONS] program
+```
 
 ### Options
 

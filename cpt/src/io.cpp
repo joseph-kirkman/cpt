@@ -170,8 +170,26 @@ namespace cpt {
 
 // File
 namespace cpt {
-    std::string File::read(const Path& path) {
-        std::fstream fs(path.str());
-        return std::string(std::istreambuf_iterator<char>(fs.rdbuf()), std::istreambuf_iterator<char>());
+    std::string File::read(const Path& path){
+        std::ifstream fs(path.str());
+
+        if(!fs.is_open()){
+            throw std::runtime_error("cannot open file " + path.str());
+        }
+
+        std::string result(std::istreambuf_iterator<char>(fs.rdbuf()), std::istreambuf_iterator<char>());
+        fs.close();
+
+        return result;
+    }
+    void File::write(const Path& path, const std::string& data){
+        std::ofstream fs(path.str());
+
+        if(!fs.is_open()){
+            throw std::runtime_error("cannot open file " + path.str());
+        }
+
+        fs << data;
+        fs.close();        
     }
 }
