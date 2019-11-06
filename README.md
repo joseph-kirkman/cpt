@@ -48,6 +48,15 @@ cptc [OPTIONS] program
 | -e,--time   | Elapse test's time execution                                                   |
 | -m,--min-per-thread | Minimum number of tests per thread (3 by default)                      |
 | --single-thread | All tests are executed on a single thread                                  |
+### Language support
+- **C++** 
+    - /usr/bin/g++
+- **Java** 
+    - /usr/bin/java
+- **Python** 
+    - /usr/bin/python
+- **Go** 
+    - /usr/local/go/bin/go
 ### Dependencies
 
 - Header-only [CLI11](https://github.com/CLIUtils/CLI11) for arguments parsing

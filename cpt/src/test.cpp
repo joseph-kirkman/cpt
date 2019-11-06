@@ -2,31 +2,47 @@
 #include "cpt/system.hpp"
 #include "cpt/test.hpp"
 
-//Test::Options
+//TestFabric
 namespace cpt {
 
-    Test::Options::Options():
+    TestFabric::TestFabric():
         timer(false){}
 
-    Test::Options::Options(bool timer):
-        timer(timer){}
+    TestFabric& TestFabric::withTimer(bool timer){
+        this->timer = timer;
+        return *this;
+    }
 }
 
-//Test::Info
+//TestInfo
 namespace cpt {
-    Test::Info::Info(const Path& program, const Path& input, const Path& output):
-        program(program), input(input), output(output){}
+
+    TestInfo& TestInfo::withProgram(const std::shared_ptr<Program>& program){
+        this->program = program;
+        return *this;
+    }
+
+    TestInfo& TestInfo::withInput(const Path& input){
+        this->input = input;
+        return *this;
+    }
+
+    TestInfo& TestInfo::withOutput(const Path& output){
+        this->output = output;
+        return *this;
+    }
 }
 
 //Test
 namespace cpt {
 
-    Test::Test(const Test::Info& info): info_(info){
+    Test::Test(const TestInfo& info):
+        info_(info){
         check_info();
     }
 
-    Test::Test(const Path& program, const Path& input, const Path& output):
-        info_(program, input, output){
+    Test::Test(const std::shared_ptr<Program>& program, const Path& input, const Path& output){
+        info_ = TestInfo().withProgram(program).withInput(input).withOutput(output);
         check_info();
     }
 
@@ -49,13 +65,13 @@ namespace cpt {
     }
 
     void Test::run(){
-        result_ = System::execute(System::redirect_input(info_.program, info_.input));
+        result_ = info_.program->run(info_.input);
         answer_ = File::read(info_.output);
         String::trim(result_);
         String::trim(answer_);
     }
 
-    const Test::Info& Test::info() const {
+    const TestInfo& Test::info() const {
         return info_;
     }
 
@@ -68,9 +84,6 @@ namespace cpt {
     }
 
     void Test::check_info(){
-        if(!info_.program.is_file()){
-            throw std::runtime_error(info_.program.str() + " file doesn't exist");
-        }
 
         if(!info_.input.is_file()){
             throw std::runtime_error(info_.input.str() + " file doesn't exist");
@@ -91,8 +104,8 @@ namespace cpt {
     MultiTest::Result::Result(int index, const std::shared_ptr<Test>& test):
         index(index), test(test){}
 
-    MultiTest::MultiTest(const Test::Info& info, const Test::Options& ops):
-        info_(info), ops_(ops){}
+    MultiTest::MultiTest(const TestInfo& info, const TestFabric& fabric):
+        info_(info), fabric_(fabric){}
 
     void MultiTest::run(const Range& tests_range, int num_threads){
         int block_size = tests_range.size() / num_threads;
@@ -108,7 +121,7 @@ namespace cpt {
             thread.detach();
         };
 
-        for(size_t i = 0; i < num_threads - 1; ++i){
+        for(int i = 0; i < num_threads - 1; ++i){
             auto block_end = block_start;
             std::advance(block_end, block_size);
             run_thread(block_start, block_end);
@@ -123,7 +136,7 @@ namespace cpt {
         for(auto it = begin; it != end; ++it){
             std::string num_str = std::to_string(*it);
             std::shared_ptr<Test> test(
-                ops_.create(
+                fabric_.create(
                     info_.program,
                     info_.input.add_suffix(num_str),
                     info_.output.add_suffix(num_str)

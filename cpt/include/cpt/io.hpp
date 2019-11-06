@@ -18,6 +18,7 @@ namespace cpt {
         bool is_absolute() const;
         Path filename(bool with_extension=true) const;
         Path dirname() const;
+        std::string extension() const;
         Path add_suffix(const std::string& str) const;
         std::string str() const;
 

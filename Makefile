@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -Wall -std=c++11 -O3
+CXXFLAGS := -Wall -Werror -Wextra -std=c++11
 
 BUILD := build
 BIN_DIR := $(BUILD)/bin

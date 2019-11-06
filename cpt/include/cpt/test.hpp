@@ -11,23 +11,44 @@
 
 namespace cpt {
 
+    class TestInfo {
+    public:
+        TestInfo()=default;
+        ~TestInfo()=default;
+        TestInfo& withProgram(const std::shared_ptr<Program>& program);
+        TestInfo& withInput(const Path& input);
+        TestInfo& withOutput(const Path& output);
+    public:
+        std::shared_ptr<Program> program;
+        Path                     input;
+        Path                     output;        
+    };
+
+    class TestFabric;
+
     class Test {
     public:
+        Test()=default;
+        explicit Test(const TestInfo& info);
+        Test(const std::shared_ptr<Program>& program, const Path& input, const Path& output);
+        virtual ~Test()=default;
+        bool passed() const;
+        virtual void run();
+        const TestInfo& info() const;
+        const std::string& result() const;
+        const std::string& answer() const;
+    private:
+        void check_info();
+    private:
+        TestInfo    info_;
+        std::string result_;
+        std::string answer_;
+    };
 
-        class Info {
+    class TestFabric {
         public:
-            Info()=default;
-            Info(const Path& program, const Path& input, const Path& output);
-        public:
-            Path program;
-            Path input;
-            Path output;        
-        };
-
-        class Options {
-        public:
-            Options();
-            Options(bool timer);
+            TestFabric();
+            TestFabric& withTimer(bool timer);
 
             template <typename ...Args>
             Test* create(Args&&... args){
@@ -36,27 +57,9 @@ namespace cpt {
                 }
                 return new Test(std::forward<Args>(args)...);
             }
-            
+
         public:
             bool timer;
-        };
-
-    public:
-        Test()=default;
-        Test(const Info& info);
-        Test(const Path& program, const Path& input, const Path& output);
-        virtual ~Test()=default;
-        bool passed() const;
-        virtual void run();
-        const Info& info() const;
-        const std::string& result() const;
-        const std::string& answer() const;
-    private:
-        void check_info();
-    private:
-        Info        info_;
-        std::string result_;
-        std::string answer_;
     };
 
     class MultiTest {
@@ -71,7 +74,7 @@ namespace cpt {
         };
     public:
         MultiTest()=default;
-        MultiTest(const Test::Info& info, const Test::Options& ops);
+        MultiTest(const TestInfo& info, const TestFabric& fabric);
         MultiTest(const MultiTest&)=delete;
         MultiTest& operator=(const MultiTest&)=delete;
         void run(const Range& tests_range, int num_threads);
@@ -82,8 +85,8 @@ namespace cpt {
         std::queue<Result>      tests_;
         std::mutex              mutex_;
         std::condition_variable cond_;
-        Test::Info              info_;
-        Test::Options           ops_;
+        TestInfo                info_;
+        TestFabric              fabric_;
     };
 }
 

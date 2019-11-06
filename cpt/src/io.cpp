@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -90,12 +91,25 @@ namespace cpt {
         if(path_.empty()){
             dir.path_.push_back("..");
         } else {
-            for(size_t i = 0; i < path_.size() - 1; ++i){
-                dir.path_.push_back(path_[i]);
-            }
+            dir.path_.assign(path_.begin(), path_.end() - 1);
         }
 
         return dir;
+    }
+
+    std::string Path::extension() const {
+        std::string ext;
+
+        if(!path_.empty()){
+            auto last = path_.back();
+            size_t index = last.find_last_of(".");
+
+            if(index != std::string::npos){
+                ext = last.substr(index + 1);
+            }
+        }
+
+        return ext;
     }
 
     Path Path::add_suffix(const std::string& str) const {

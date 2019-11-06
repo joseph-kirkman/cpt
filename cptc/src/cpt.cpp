@@ -10,7 +10,10 @@ int main(int argc, char** argv){
     CLI::App app("Competitive Programming Tester", "cptc");
 
     try {
-        cpt::Test::Info test_info(cpt::Path(), cpt::Path("i.txt"), cpt::Path("o.txt"));
+        auto test_info = cpt::TestInfo()
+                            .withInput(cpt::Path("i.txt"))
+                            .withOutput(cpt::Path("o.txt"));
+        cpt::Path program;
         cpt::Path dir = cpt::Path::current_path();
         int num_tests = 1;
         bool silent = false;
@@ -18,11 +21,11 @@ int main(int argc, char** argv){
         std::string tests_str;
         cpt::Range tests_range;
 
-        cpt::Test::Options test_ops;
+        cpt::TestFabric test_fabric;
         int min_tests_per_thread = 3;
         bool single_thread = false;
 
-        app.add_option("program", test_info.program, "Program for testing")
+        app.add_option("program", program, "Program for testing")
                       ->required(true)->check(cpt::ProgramValidator());
         
         app.add_option("-i,--input", test_info.input, "Input file (i.txt by default)");
@@ -41,7 +44,7 @@ int main(int argc, char** argv){
         app.add_option("-t,--tests", tests_str, "Tests ranges divided by comma (a:b, n, ...)")
                       ->check(cpt::TestsValidator(tests_range));
         
-        app.add_flag("-e,--time", test_ops.timer, "Elapse test's time execution");
+        app.add_flag("-e,--time", test_fabric.timer, "Elapse test's time execution");
 
         app.add_option("-m,--min-per-thread", min_tests_per_thread,
                       "Minimum number of tests per thread (3 by default)")
@@ -60,8 +63,11 @@ int main(int argc, char** argv){
             num_tests = tests_range.size();
         }
 
+        test_info.program = cpt::Program::fromFile(program);
+        test_info.program->init();
+
         cpt::Console::print("Program = ");
-        cpt::Console::println(test_info.program.str(), cpt::Console::Color::blue);
+        cpt::Console::println(program, cpt::Console::Color::blue);
         cpt::Console::print("Number of tests = ");
         cpt::Console::println(num_tests, cpt::Console::Color::blue);
         cpt::Console::print("Tests directory = ");
@@ -77,7 +83,7 @@ int main(int argc, char** argv){
             num_threads = std::min(hardware_threads > 0 ? hardware_threads : 2, max_threads);  
         }
 
-        cpt::MultiTest mt(test_info, test_ops);
+        cpt::MultiTest mt(test_info, test_fabric);
         mt.run(tests_range, num_threads);
 
         int tests_done = 0;
@@ -110,7 +116,7 @@ int main(int argc, char** argv){
                 }
             }
 
-            if(!silent && test_ops.timer){
+            if(!silent && test_fabric.timer){
                 cpt::Console::print("Time = ");
                 cpt::Console::print(
                     static_cast<cpt::Timeable<cpt::Test>*>(test.get())->time(),
