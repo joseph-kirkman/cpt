@@ -7,5 +7,6 @@
 #include "cpt/test.hpp"
 #include "cpt/range.hpp"
 #include "cpt/mixins.hpp"
+#include "cpt/program.hpp"
 
 #endif //CPT_HPP

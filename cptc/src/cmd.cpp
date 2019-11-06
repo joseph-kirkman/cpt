@@ -88,4 +88,18 @@ namespace cpt {
 
         return "";
     }
+
+    std::string BinDirValidator::operator()(const std::string& bin_dir_str){
+        Path dir(bin_dir_str);
+
+        if(dir.empty()){
+            return "";
+        }
+
+        if(!dir.is_dir()){
+            return bin_dir_str + " bin directory doesn't exist";
+        }
+
+        return "";
+    }
 }

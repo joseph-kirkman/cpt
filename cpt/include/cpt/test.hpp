@@ -8,6 +8,7 @@
 #include "cpt/io.hpp"
 #include "cpt/mixins.hpp"
 #include "cpt/range.hpp"
+#include "cpt/program.hpp"
 
 namespace cpt {
 

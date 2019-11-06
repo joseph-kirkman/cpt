@@ -48,6 +48,7 @@ cptc [OPTIONS] program
 | -e,--time   | Elapse test's time execution                                                   |
 | -m,--min-per-thread | Minimum number of tests per thread (3 by default)                      |
 | --single-thread | All tests are executed on a single thread                                  |
+| -b, --bin-dir | Directory with binaries                                                      |
 ### Language support
 - **C++** 
     - /usr/bin/g++

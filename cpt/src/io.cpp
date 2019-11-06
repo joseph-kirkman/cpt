@@ -34,6 +34,8 @@ namespace cpt {
 #endif
     }
 
+    Path::Path(const char* path): Path(std::string(path)){}
+
     bool Path::empty() const {
         return path_.empty();
     }

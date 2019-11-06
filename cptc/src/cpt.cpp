@@ -24,6 +24,7 @@ int main(int argc, char** argv){
         cpt::TestFabric test_fabric;
         int min_tests_per_thread = 3;
         bool single_thread = false;
+        cpt::Path bin_dir = cpt::Path::current_path();
 
         app.add_option("program", program, "Program for testing")
                       ->required(true)->check(cpt::ProgramValidator());
@@ -52,6 +53,9 @@ int main(int argc, char** argv){
         
         app.add_flag("--single-thread", single_thread, "All tests are executed on a single thread");
 
+        app.add_option("-b, --bin-dir", bin_dir, "Directory with binaries")
+                      ->check(cpt::BinDirValidator());
+
         app.parse(argc, argv);
 
         test_info.input = dir / test_info.input;
@@ -63,8 +67,9 @@ int main(int argc, char** argv){
             num_tests = tests_range.size();
         }
 
-        test_info.program = cpt::Program::fromFile(program);
-        test_info.program->init();
+        auto prog = cpt::Program::create(program, bin_dir);
+        prog->init();
+        test_info = test_info.withProgram(prog);
 
         cpt::Console::print("Program = ");
         cpt::Console::println(program, cpt::Console::Color::blue);
@@ -72,6 +77,8 @@ int main(int argc, char** argv){
         cpt::Console::println(num_tests, cpt::Console::Color::blue);
         cpt::Console::print("Tests directory = ");
         cpt::Console::println(dir, cpt::Console::Color::blue);
+        cpt::Console::print("Binaries directory = ");
+        cpt::Console::println(bin_dir, cpt::Console::Color::blue);
         cpt::Console::println();
 
         int num_threads = 1;

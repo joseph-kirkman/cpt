@@ -11,6 +11,7 @@ namespace cpt {
     public:
         Path();
         explicit Path(const std::string& path);
+        explicit Path(const char* path);
         bool empty() const;
         bool exists() const;
         bool is_dir() const;

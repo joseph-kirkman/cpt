@@ -26,7 +26,11 @@ namespace cpt {
 
     struct MinTestsPerThreadValidator {
         std::string operator()(const std::string& tests_per_thread_str);
-    };    
+    };
+
+    struct BinDirValidator {
+        std::string operator()(const std::string& bin_dir_str);
+    };
 }
 
 #endif //CPTC_CMD_HPP
