@@ -1,6 +1,6 @@
 #include <array>
 #include <sstream>
-#include <unordered_map>
+#include <map>
 #include "cpt/string.hpp"
 #include "cpt/system.hpp"
 
@@ -40,20 +40,36 @@ namespace cpt {
 // Program
 namespace cpt {
 
+    static std::map<std::string, std::unique_ptr<ProgramFabric>>& global_fabrics(){
+        static std::map<std::string, std::unique_ptr<ProgramFabric>> fabrics;
+        return fabrics;
+    }
+
+#define REGISTER_FABRIC(PREFIX, EXTENSION)                       \
+class PREFIX##Fabric: public ProgramFabric {                     \
+public:                                                          \
+    std::shared_ptr<Program> create(const Path& file) override { \
+        return std::make_shared<PREFIX##Program>(file);          \
+    }                                                            \
+};                                                               \
+__attribute__((constructor))                                     \
+static void init##PREFIX##Fabric() {                             \
+    auto& fabrics = global_fabrics();                            \
+    fabrics[EXTENSION].reset(new PREFIX##Fabric());              \
+}                                                                \
+
+REGISTER_FABRIC(Cpp, "cpp")
+REGISTER_FABRIC(Java, "java")
+REGISTER_FABRIC(Python, "py")
+REGISTER_FABRIC(Go, "go")
+
     std::shared_ptr<Program> Program::fromFile(const Path& file){
         auto extension = file.extension();
-
-        if(extension == "cpp"){
-            return std::make_shared<CppProgram>(file);
-        } else if(extension == "py"){
-            return std::make_shared<PythonProgram>(file);
-        } else if(extension == "java"){
-            return std::make_shared<JavaProgram>(file);
-        } else if(extension == "go"){
-            return std::make_shared<GoProgram>(file);
-        } else {
+        auto& fabrics = global_fabrics();
+        auto it = fabrics.find(extension);
+        if(it == fabrics.end())
             throw std::runtime_error("unknown file extension " + extension);
-        }
+        return it->second->create(file); 
     }
 
     Program::Program(const Path& file):
@@ -62,6 +78,7 @@ namespace cpt {
     CppProgram::CppProgram(const Path& file):
         Program(file), CompiledProgram(file){         
         compiler_ = Path("/usr/bin/g++");
+        flags_ = "-O2 -std=c++11";
     }
 
     JavaProgram::JavaProgram(const Path& file):
@@ -86,10 +103,17 @@ namespace cpt {
     }
 
     void CompiledProgram::init(){
+        if(!compiler_.is_file()){
+            throw std::runtime_error("cannot find compiler " + compiler_.str());
+        }
         this->compile();
     }
 
-    void InterpretedProgram::init(){}
+    void InterpretedProgram::init(){
+        if(!interpreter_.is_file()){
+            throw std::runtime_error("cannot find interpreter " + interpreter_.str());
+        }
+    }
 
     void JavaProgram::init(){
         CompiledProgram::init();
@@ -98,7 +122,7 @@ namespace cpt {
     void CppProgram::compile(){
         exe_ = file_.dirname() / file_.filename(false);
         std::stringstream ss;
-        ss << compiler_ << " " << file_ << " -o " << exe_;
+        ss << compiler_ << " " << flags_ << " " << file_ << " -o " << exe_;
         System::execute(ss.str());
     }
 

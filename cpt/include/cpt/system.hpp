@@ -5,6 +5,7 @@
 #include "cpt/io.hpp"
 
 namespace cpt {
+
     class System {
     public:
         static std::string execute(const std::string& program);
@@ -23,6 +24,12 @@ namespace cpt {
         Path file_;
     };
 
+    class ProgramFabric {
+    public:
+        virtual ~ProgramFabric()=default;
+        virtual std::shared_ptr<Program> create(const Path& file)=0;
+    };
+
     class CompiledProgram: public virtual Program {
     public:
         using Program::Program;
@@ -30,8 +37,9 @@ namespace cpt {
         virtual void compile()=0;
         std::string run(const Path& input) override;
     protected:
-        Path exe_;
-        Path compiler_;
+        Path        exe_;
+        Path        compiler_;
+        std::string flags_;
     };
 
     class InterpretedProgram: public virtual Program {
