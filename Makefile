@@ -19,6 +19,9 @@ CPTC_HEADERS := $(wildcard $(CPTC)/include/cptc/*.hpp)
 CPTC_SRC := $(wildcard $(CPTC)/src/*.cpp)
 CPTC_APP := $(BIN_DIR)/$(CPTC)
 
+PREFIX ?= /usr/local
+INSTALL_BIN_DIR := $(PREFIX)/bin
+
 all: build $(CPTC)
 
 $(OBJ_DIR)/%.o: %.cpp
@@ -52,3 +55,7 @@ clean:
 	@rm -rvf $(OBJ_DIR)/*
 	@rm -rvf $(BIN_DIR)/*
 
+install: $(CPTC_APP)
+	@echo "Installing $(CPTC_APP) to $(INSTALL_BIN_DIR)"
+	@install -d $(INSTALL_BIN_DIR)
+	@install -m 755 $(CPTC_APP) $(INSTALL_BIN_DIR)

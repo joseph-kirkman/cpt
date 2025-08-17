@@ -5,27 +5,19 @@ Tool for testing your algorithms
 
 ## Getting Started
 
-Now **cpt** is presented as a command-line tool as **cptc**, but the web-based version is also an option in the future.
 ### Prerequisites
 
 Project is built by **make** which uses **gcc** (or **clang** for Mac) for compiling. Currently **Makefile** uses **POSIX**-compliant commands, so it is not tested on **Windows**.
 ### Installing
 
-As it was mentioned **cpt** uses **make** as a build system. And the core **libcpt** library is used in a command-line tool or a web-based application.
-
-To build the library simply run
-
+To build the command-line tool
 ```
-make cpt
+make
 ```
-
-Or to build command-line tool
-
+All the binaries and object files are now in the **build** directory. You can install the binary by running
 ```
-make cptc
+sudo make install
 ```
-
-All the binaries and object files are now in the **build** directory.
 
 ## Command-line interface
 
@@ -45,7 +37,7 @@ cptc [OPTIONS] program
 | -n,--num    | Number of tests (i[1..n].txt and o[1..n].txt files will be used)               |
 | -s,--silent | Do not print additional test info                                              |
 | -t,--tests  | Tests ranges divided by comma (a:b, n, ...)                                    |
-| -e,--time   | Elapse test's time execution                                                   |
+| -e,--time   | Test's execution time                                                          |
 | -m,--min-per-thread | Minimum number of tests per thread (3 by default)                      |
 | --single-thread | All tests are executed on a single thread                                  |
 | -b, --bin-dir | Directory with binaries                                                      |
@@ -61,6 +53,25 @@ cptc [OPTIONS] program
 ### Dependencies
 
 - Header-only [CLI11](https://github.com/CLIUtils/CLI11) for arguments parsing
+
+## Example
+Suppose your project structure is the following
+```
+- tests
+    - i1.txt
+    - o1.txt
+    - i2.txt
+    - o2.txt
+- bin
+A.cpp
+```
+
+Then run your program `A.cpp` with tests located in the `test` directory by running
+```
+cptc A.cpp -b bin -d tests -n 3
+```
+
+
 
 
 ​              
