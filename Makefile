@@ -25,7 +25,7 @@ $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPT_INCLUDE) -o $@ -c $<
 
-$(CPT_LIB): $(CPT_OBJ) $(CPT_HEADERS)
+$(CPT_LIB): $(CPT_OBJ)
 	@mkdir -p $(@D)
 	ar rcs $(CPT_LIB) $^
 
