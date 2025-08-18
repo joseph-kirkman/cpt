@@ -7,7 +7,7 @@ namespace cpt {
 
     class Program {
     public:
-        static std::shared_ptr<Program> create(const Path& file, const Path& bin_dir=Path());
+        static std::shared_ptr<Program> create(const Path& file, const Config& config, const Path& bin_dir=Path());
         Program(const Path& file, const Path& dir=Path());
         virtual ~Program()=default;
         virtual void init()=0;
@@ -23,7 +23,7 @@ namespace cpt {
     class ProgramFabric {
     public: 
         virtual ~ProgramFabric()=default;
-        virtual std::shared_ptr<Program> create(const Path& file, const Path& bin_dir=Path())=0;
+        virtual std::shared_ptr<Program> create(const Path& file, const Config& config, const Path& bin_dir=Path())=0;
     };
 
     class CompiledProgram: public virtual Program {
@@ -50,13 +50,13 @@ namespace cpt {
 
     class CppProgram: public CompiledProgram {
     public:
-        CppProgram(const Path& file, const Path& dir=Path());
+        CppProgram(const Path& file, const Config& config, const Path& dir=Path());
         void compile() override;
     };
 
     class JavaProgram: public CompiledProgram, public InterpretedProgram {
     public:
-        JavaProgram(const Path& file, const Path& dir=Path());
+        JavaProgram(const Path& file, const Config& config, const Path& dir=Path());
         void init() override;
         void compile() override;
         std::string run(const Path& input) override;
@@ -64,13 +64,13 @@ namespace cpt {
 
     class PythonProgram: public InterpretedProgram {
     public:
-        PythonProgram(const Path& file, const Path& dir=Path());
+        PythonProgram(const Path& file, const Config& config, const Path& dir=Path());
         std::string run(const Path& input) override;
     };
 
     class GoProgram: public CompiledProgram {
     public:
-        GoProgram(const Path& file, const Path& dir=Path());
+        GoProgram(const Path& file, const Config& config, const Path& dir=Path());
         void compile() override;
     };
 }

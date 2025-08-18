@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
@@ -58,6 +59,8 @@ int main(int argc, char** argv){
 
         app.parse(argc, argv);
 
+        auto config = cpt::Config::from_file(cpt::Path(std::getenv("HOME")) / cpt::Path("cptc.yaml"));
+
         test_info.input = dir / test_info.input;
         test_info.output = dir / test_info.output;
 
@@ -67,7 +70,7 @@ int main(int argc, char** argv){
             num_tests = tests_range.size();
         }
 
-        auto prog = cpt::Program::create(program, bin_dir);
+        auto prog = cpt::Program::create(program, config, bin_dir);
         prog->init();
         test_info = test_info.withProgram(prog);
 

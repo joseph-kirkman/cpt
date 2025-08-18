@@ -43,13 +43,10 @@ cptc [OPTIONS] program
 | -b, --bin-dir | Directory with binaries                                                      |
 ### Language support
 - **C++** 
-    - /usr/bin/g++
 - **Java** 
-    - /usr/bin/java
 - **Python** 
-    - /usr/bin/python
 - **Go** 
-    - /usr/local/go/bin/go
+You can setup compilers and their flags for these languages in `cptc.yaml`. By default `cptc` will look for config at the root in `~/cptc.yaml`.
 ### Dependencies
 
 - Header-only [CLI11](https://github.com/CLIUtils/CLI11) for arguments parsing

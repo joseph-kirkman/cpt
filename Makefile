@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -Wall -Werror -Wextra -std=c++11
+CXXFLAGS := -Wall -Werror -Wextra -std=c++17
 
 BUILD := build
 BIN_DIR := $(BUILD)/bin
@@ -21,6 +21,8 @@ CPTC_APP := $(BIN_DIR)/$(CPTC)
 
 PREFIX ?= /usr/local
 INSTALL_BIN_DIR := $(PREFIX)/bin
+
+CONFIG := cptc.yaml
 
 all: build $(CPTC)
 
@@ -59,3 +61,4 @@ install: $(CPTC_APP)
 	@echo "Installing $(CPTC_APP) to $(INSTALL_BIN_DIR)"
 	@install -d $(INSTALL_BIN_DIR)
 	@install -m 755 $(CPTC_APP) $(INSTALL_BIN_DIR)
+	cp $(CONFIG) ~

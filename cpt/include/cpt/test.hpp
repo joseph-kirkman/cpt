@@ -5,6 +5,7 @@
 #include <thread>
 #include <queue>
 
+#include "cpt/config.hpp"
 #include "cpt/io.hpp"
 #include "cpt/mixins.hpp"
 #include "cpt/range.hpp"

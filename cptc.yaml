@@ -1,0 +1,13 @@
+cpp:
+  compiler: /usr/bin/g++
+  flags: -O2 -std=c++11
+
+java:
+  compiler: /usr/bin/javac
+  interpreter: /usr/bin/java
+
+python:
+  interpreter: /usr/bin/python
+
+go:
+  compiler: /usr/local/go/bin/go

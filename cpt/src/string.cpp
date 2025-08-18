@@ -38,4 +38,22 @@ namespace cpt {
         trim_left(str);
         trim_right(str);
     }
+
+    std::string String::trim_left(const std::string& str) {
+        std::string res(str);
+        trim_left(res);
+        return res;
+    }
+
+    std::string String::trim_right(const std::string& str) {
+        std::string res(str);
+        trim_right(res);
+        return res;
+    }
+
+    std::string String::trim(const std::string& str) {
+        std::string res(str);
+        trim(res);
+        return res;
+    }
 }

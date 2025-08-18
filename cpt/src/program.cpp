@@ -1,64 +1,66 @@
 #include <sstream>
-#include <map>
+#include <unordered_map>
+#include "cpt/config.hpp"
 #include "cpt/system.hpp"
 #include "cpt/program.hpp"
 
 // Program
 namespace cpt {
 
-    static std::map<std::string, std::unique_ptr<ProgramFabric>>& global_fabrics(){
-        static std::map<std::string, std::unique_ptr<ProgramFabric>> fabrics;
+    static std::unordered_map<std::string, std::unique_ptr<ProgramFabric>>& global_fabrics(){
+        static std::unordered_map<std::string, std::unique_ptr<ProgramFabric>> fabrics;
         return fabrics;
     }
 
-#define REGISTER_FABRIC(PREFIX, EXTENSION)                           \
-    class PREFIX##Fabric: public ProgramFabric {                     \
-    public:                                                          \
-        std::shared_ptr<Program> create(                             \
-            const Path& file,                                        \
-            const Path& bin_dir=Path()) override {                   \
-            return std::make_shared<PREFIX##Program>(file, bin_dir); \
-        }                                                            \
-    };                                                               \
-    __attribute__((constructor))                                     \
-    static void init##PREFIX##Fabric() {                             \
-        auto& fabrics = global_fabrics();                            \
-        fabrics[EXTENSION].reset(new PREFIX##Fabric());              \
-    }                                                                \
+#define REGISTER_FABRIC(PREFIX, EXTENSION)                                   \
+    class PREFIX##Fabric: public ProgramFabric {                             \
+    public:                                                                  \
+        std::shared_ptr<Program> create(                                     \
+            const Path& file,                                                \
+            const Config& config,                                            \
+            const Path& bin_dir=Path()) override {                           \
+            return std::make_shared<PREFIX##Program>(file, config, bin_dir); \
+        }                                                                    \
+    };                                                                       \
+    __attribute__((constructor))                                             \
+    static void init##PREFIX##Fabric() {                                     \
+        auto& fabrics = global_fabrics();                                    \
+        fabrics[EXTENSION].reset(new PREFIX##Fabric());                      \
+    }                                                                        \
 
-    std::shared_ptr<Program> Program::create(const Path& file, const Path& bin_dir){
+    std::shared_ptr<Program> Program::create(const Path& file, const Config& config, const Path& bin_dir) {
         auto extension = file.extension();
         auto& fabrics = global_fabrics();
         auto it = fabrics.find(extension);
         if(it == fabrics.end())
             throw std::runtime_error("unknown file extension " + extension);
-        return it->second->create(file, bin_dir); 
+        return it->second->create(file, config, bin_dir); 
     }
 
     Program::Program(const Path& file, const Path& dir):
         file_(file), dir_(dir){}
 
-    CppProgram::CppProgram(const Path& file, const Path& dir):
-        Program(file, dir), CompiledProgram(file, dir){         
-        compiler_ = Path("/usr/bin/g++");
-        flags_ = "-O2 -std=c++11";
+    CppProgram::CppProgram(const Path& file, const Config& config, const Path& dir):
+        Program(file, dir), CompiledProgram(file, dir) {     
+        compiler_ = Path(config.get("cpp/compiler"));
+        flags_ = config.get("cpp/flags");
     }
 
-    JavaProgram::JavaProgram(const Path& file, const Path& dir):
-        Program(file, dir), CompiledProgram(file, dir), InterpretedProgram(file, dir){
-        compiler_ = Path("/usr/bin/javac");
-        interpreter_ = Path("/usr/bin/java");
+    JavaProgram::JavaProgram(const Path& file, const Config& config, const Path& dir):
+        Program(file, dir), CompiledProgram(file, dir), InterpretedProgram(file, dir) {
+        compiler_ = Path(config.get("java/compiler"));
+        interpreter_ = Path(config.get("java/interpreter"));
         flags_ = "-d " + dir_.str();
     }
 
-    PythonProgram::PythonProgram(const Path& file, const Path& dir):
+    PythonProgram::PythonProgram(const Path& file, const Config& config, const Path& dir):
         Program(file, dir), InterpretedProgram(file, dir){
-        interpreter_ = Path("/usr/bin/python");
+        interpreter_ = Path(config.get("python/interpreter"));
     } 
 
-    GoProgram::GoProgram(const Path& file, const Path& dir):
+    GoProgram::GoProgram(const Path& file, const Config& config, const Path& dir):
         Program(file, dir), CompiledProgram(file, dir){
-        compiler_ = Path("/usr/local/go/bin/go");
+        compiler_ = Path(config.get("go/compiler"));
     }
 
     std::istream& operator>>(std::istream& is, Program& program){
