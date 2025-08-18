@@ -46,6 +46,7 @@ cptc [OPTIONS] program
 - **Java** 
 - **Python** 
 - **Go** 
+
 You can setup compilers and their flags for these languages in `cptc.yaml`. By default `cptc` will look for config at the root in `~/cptc.yaml`.
 ### Dependencies
 
