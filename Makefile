@@ -22,7 +22,7 @@ CPTC_APP := $(BIN_DIR)/$(CPTC)
 PREFIX ?= /usr/local
 INSTALL_BIN_DIR := $(PREFIX)/bin
 
-CONFIG := cptc.yaml
+CONFIG := .cptc
 
 all: build $(CPTC)
 

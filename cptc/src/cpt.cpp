@@ -26,6 +26,7 @@ int main(int argc, char** argv){
         int min_tests_per_thread = 3;
         bool single_thread = false;
         cpt::Path bin_dir = cpt::Path::current_path();
+        cpt::Path config_path = cpt::Path(std::getenv("HOME")) / cpt::Path(".cptc");
 
         app.add_option("program", program, "Program for testing")
                       ->required(true)->check(cpt::ProgramValidator());
@@ -57,9 +58,9 @@ int main(int argc, char** argv){
         app.add_option("-b, --bin-dir", bin_dir, "Directory with binaries")
                       ->check(cpt::BinDirValidator());
 
-        app.parse(argc, argv);
+        app.add_option("-c,--config", config_path, "Path to the config with compilers paths and flags");
 
-        auto config = cpt::Config::from_file(cpt::Path(std::getenv("HOME")) / cpt::Path("cptc.yaml"));
+        app.parse(argc, argv);
 
         test_info.input = dir / test_info.input;
         test_info.output = dir / test_info.output;
@@ -70,6 +71,7 @@ int main(int argc, char** argv){
             num_tests = tests_range.size();
         }
 
+        auto config = cpt::Config::from_file(config_path);
         auto prog = cpt::Program::create(program, config, bin_dir);
         prog->init();
         test_info = test_info.withProgram(prog);
