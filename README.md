@@ -41,13 +41,14 @@ cptc [OPTIONS] program
 | -m,--min-per-thread | Minimum number of tests per thread (3 by default)                      |
 | --single-thread | All tests are executed on a single thread                                  |
 | -b, --bin-dir | Directory with binaries                                                      |
+| -c, --config | Path to the config with compilers paths and flags                             |
 ### Language support
 - **C++** 
 - **Java** 
 - **Python** 
 - **Go** 
 
-You can setup compilers and their flags for these languages in `cptc.yaml`. By default `cptc` will look for config at the root in `~/cptc.yaml`.
+You can setup compilers and their flags for these languages in `.cptc`. By default `cptc` will look for the config at the root in `~/.cptc`, but you can change it via `-c` option.
 ### Dependencies
 
 - Header-only [CLI11](https://github.com/CLIUtils/CLI11) for arguments parsing
